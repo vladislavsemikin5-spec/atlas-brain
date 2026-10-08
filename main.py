@@ -11,7 +11,7 @@ from tools.math import TOOLS, FUNCTIONS
 load_dotenv()
 app = FastAPI()
 client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ.get("OPENROUTER_API_KEY"))
-MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+MODEL = "openrouter/free"
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 SYS_USER = "Ты Atlas AI - ассистент. Отвечай кратко на русском. Если нужно посчитать - используй инструменты."
 SYS_ADMIN = "Ты Atlas AI, общаешься с создателем проекта. Помогай с кодом и развитием. Используй инструменты когда нужно посчитать."
