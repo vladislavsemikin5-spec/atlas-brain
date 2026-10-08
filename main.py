@@ -1,4 +1,4 @@
-# Atlas Brain v0.4 — с инструментами
+# Atlas Brain v0.5 — автообнаружение инструментов
 import os
 import json
 from fastapi import FastAPI
@@ -6,15 +6,15 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
-from tools.math import TOOLS, FUNCTIONS
+from tools import TOOLS, FUNCTIONS
 
 load_dotenv()
 app = FastAPI()
 client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ.get("OPENROUTER_API_KEY"))
-MODEL = "openrouter/free"
+MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
-SYS_USER = "Ты Atlas AI - ассистент. Отвечай кратко на русском. Если нужно посчитать - используй инструменты."
-SYS_ADMIN = "Ты Atlas AI, общаешься с создателем проекта. Помогай с кодом и развитием. Используй инструменты когда нужно посчитать."
+SYS_USER = "Ты Atlas AI - ассистент. Отвечай кратко на русском. Если нужен точный расчёт или данные - используй инструменты."
+SYS_ADMIN = "Ты Atlas AI, общаешься с создателем проекта. Помогай с кодом и развитием. Используй инструменты когда нужно."
 
 class ChatRequest(BaseModel):
     message: str
@@ -22,7 +22,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ok", "version": "0.4"}
+    return {"status": "ok", "version": "0.5", "tools_loaded": len(TOOLS)}
 
 @app.get("/health")
 def health():
@@ -64,7 +64,7 @@ def chat(req: ChatRequest):
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
-                tools=TOOLS,
+                tools=TOOLS if TOOLS else None,
                 temperature=0.7
             )
             if not response or not response.choices:
